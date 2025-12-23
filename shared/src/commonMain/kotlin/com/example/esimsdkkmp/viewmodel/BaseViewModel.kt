@@ -1,4 +1,4 @@
-package com.example.esimsdkkmp
+package com.example.esimsdkkmp.viewmodel
 
 import kotlinx.coroutines.CoroutineScope
 

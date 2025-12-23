@@ -1,5 +1,7 @@
 package com.example.esimsdkkmp
 
+import com.example.esimsdkkmp.bitmap.PlatformBitmap
+
 expect object InMemoryPhotoStore {
     /**
      * Store an in-memory bitmap and return its generated ID.

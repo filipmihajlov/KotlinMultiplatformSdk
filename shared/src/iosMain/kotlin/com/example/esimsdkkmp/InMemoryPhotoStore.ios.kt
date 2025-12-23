@@ -1,16 +1,23 @@
 package com.example.esimsdkkmp
 
-// shared/src/iosMain/kotlin/com/example/esimsdkkmp/photos/PhotoStore.ios.kt
+import com.example.esimsdkkmp.bitmap.PlatformBitmap
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+
 actual object InMemoryPhotoStore {
-    // mirror the same logic using UIImage
+
+    private val photos = mutableMapOf<String, PlatformBitmap>()
+
+    @OptIn(ExperimentalUuidApi::class)
     actual fun put(bitmap: PlatformBitmap): String {
-        TODO("Not yet implemented")
+        val id = Uuid.random().toString()
+        photos[id] = bitmap
+        return id
     }
 
-    actual fun get(id: String): PlatformBitmap? {
-        TODO("Not yet implemented")
-    }
+    actual fun get(id: String): PlatformBitmap? = photos[id]
 
     actual fun remove(id: String) {
+        photos.remove(id)
     }
 }

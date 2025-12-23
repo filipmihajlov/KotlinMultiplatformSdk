@@ -1,4 +1,4 @@
-package com.example.esimsdkkmp
+package com.example.esimsdkkmp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

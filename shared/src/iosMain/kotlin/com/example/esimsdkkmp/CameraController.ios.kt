@@ -4,15 +4,23 @@ import com.example.esimsdkkmp.domain.model.BusinessCardDraft
 
 actual class CameraController actual constructor() {
 
-//    actual suspend fun captureImageForBusinessCard(): CaptureResult {
-//        // TODO: integrate with UIImagePickerController / PHPicker in the iOS app
-//        // or via a delegate injected into this controller.
-//        return CaptureResult.Cancelled
-//        // Or simulate success:
-//        // return CaptureResult.Success(ImageRef("ios-stub-image-\(currentTimeMillis())"))
-//    }
-
-    actual suspend fun captureDraft(): BusinessCardDraft? {
-        TODO("Not yet implemented")
+    companion object {
+        /**
+         * Hook that the iOS facade (or host app later) can override.
+         * Default is a simple fake implementation.
+         */
+        var launcher: suspend () -> BusinessCardDraft? = {
+            BusinessCardDraft(
+                fullName = "Filip (iOS fake)",
+                company = "Demo Co",
+                email = "filip+ios@example.com",
+                phone = null,
+                website = null,
+                notes = "Created by iOS CameraController",
+                imageRef = null,
+            )
+        }
     }
+
+    actual suspend fun captureDraft(): BusinessCardDraft? = launcher()
 }

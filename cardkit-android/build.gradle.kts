@@ -64,3 +64,10 @@ afterEvaluate {
         }
     }
 }
+
+tasks.matching { it.name == "publishToMavenLocal" }.configureEach {
+    dependsOn(":shared:publishToMavenLocal")
+}
+tasks.matching { it.name.contains("publish") && it.name.contains("ToMavenLocal") }.configureEach {
+    dependsOn(":shared:publishToMavenLocal")
+}

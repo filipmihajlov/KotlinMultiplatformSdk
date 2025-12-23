@@ -1,6 +1,6 @@
 package com.example.esimsdkkmp
 
-import android.graphics.Bitmap
+import com.example.esimsdkkmp.bitmap.PlatformBitmap
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

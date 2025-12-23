@@ -1,46 +1,40 @@
 # Kotlin Multiplatform SDK Demo
 
 This is a Kotlin Multiplatform project targeting **Android** and **iOS**.  
-It contains a shared SDK module and sample host applications for both platforms.
+It contains a shared SDK module that will be implemented in host applications for both mobile platforms.
 
-The project demonstrates how to:
+The main points of this repo are: **generate local SDK artefacts** that you can consume from the native Showcase apps.
+Point 2 is to showcase how things are done in KMP
 
-- Share business logic between Android and iOS.
-- Expose a clear SDK API surface for host apps.
-- Provide ready-made UI flows on Android (and SwiftUI integration on iOS).
-- Use modern multiplatform tooling in a way that is suitable for real products.
+- **Android:** publish AARs to **Maven Local**
+- **iOS:** build an **XCFramework** for Xcode
 
 ---
 
 ## What the SDK Demonstrates
 
-### Kotlin Multiplatform architecture
+### Local SDK delivery model (project-specific)
 
-- Shared domain and data layer in `commonMain`.
-- Platform-specific implementations (storage, logging, networking details) per target.
-- Clear separation between:
-    - **Public SDK API** (what host apps use).
-    - **Internal implementation details**.
+This project is set up so you can treat the shared KMP code as an SDK during development:
 
-### Android & iOS integration
+- Android Showcase consumes:
+    - `com.example.esimsdkkmp:shared-android:<version>`
+    - `com.example.esimsdkkmp:cardkit-android:<version>` (Android wrapper)
+- iOS Showcase consumes:
+    - a generated `*.xcframework` built from the KMP module
+
+
+### Android & iOS integration (in this repo)
 
 #### Android
 
-- SDK consumed as a standard Gradle module.
-- Jetpack Compose UI that connects to the shared logic.
+- SDK is published locally as Maven artefacts.
+- Host apps consume it via `mavenLocal()` and normal Gradle dependencies.
 
 #### iOS
 
-- SDK exported as a Kotlin/Native framework.
-- Swift-friendly wrappers and SwiftUI screens that use the shared code.
-
-### SDK usage model
-
-- Host app owns **authentication**, **navigation** and **theming**.
-- SDK exposes:
-    - Public functions and models.
-    - State / flows that can be bound to the host app’s UI.
-- Sample screens show how a host app can embed SDK-provided functionality.
+- SDK is exported as an XCFramework.
+- Host apps consume it by adding the `.xcframework` in Xcode (“drop-in SDK”).
 
 ---
 
@@ -52,59 +46,52 @@ This is a Kotlin Multiplatform project targeting **Android** and **iOS**.
 
 [`/composeApp`](./composeApp/src) contains the **Android app** and any shared Compose Multiplatform UI.
 
-Key parts:
+This module mostly exists to show how the SDK can be consumed from an Android app. Presentation wise it's empty because that part
+has been moved to the implementation or Showcase Android SDK.
 
-- `composeApp/src/commonMain/kotlin`  
-  Shared UI elements and presentation logic written with Compose Multiplatform.
-
-- Other source sets are for platform-specific Kotlin code:
-    - `androidMain` – Android-only integrations (Android SDK, permissions, etc.).
-    - `iosMain` – iOS-specific hooks if Compose views are embedded on iOS.
-    - `jvmMain` – Desktop/JVM-specific code, if used.
-
-This module shows how the SDK is **consumed** from an Android app and how shared UI is wired to the shared logic.
 
 ### `/iosApp`
 
 [`/iosApp`](./iosApp/iosApp) contains the **iOS sample application**.
 
-It shows how to:
-
-- Import the generated Kotlin framework into Xcode.
-- Wrap shared Kotlin view models into Swift observable objects.
-- Build SwiftUI screens that react to Kotlin Flows/StateFlows.
-
-This is the reference for **iOS integration** of the SDK.
+This module shows the reference integration style on iOS (Xcode + SwiftUI consuming the shared code).Presentation wise it's empty because that part
+has been moved to the implementation or Showcase iOS SDK.
 
 ### `/shared`
 
 [`/shared`](./shared/src) is the **core SDK module**, shared between all targets.
 
-- `shared/src/commonMain/kotlin`  
-  Contains the platform-agnostic core:
-    - Public SDK API (facades, use cases).
-    - Domain models.
-    - Business logic and state handling.
-    - Interfaces for platform-specific implementations.
+This is the module you publish/build as an SDK artefact:
 
-- Platform-specific folders (e.g. `androidMain`, `iosMain`)  
-  Used when shared code needs to call into platform APIs (secure storage, logging, etc.).
+- **Android:** `shared-android` (published to Maven Local)
+- **iOS:** XCFramework (built from `shared`)
 
-In a production setup, this module would typically be published as:
+### `/cardkit-android`
 
-- **Android:** a library artifact (AAR / Maven).
-- **iOS:** an XCFramework / Swift Package.
+`/cardkit-android` is an **Android-only wrapper artefact** that depends on `shared-android`.
+
+It’s published as:
+
+- **Android:** `cardkit-android` (published to Maven Local)
 
 ---
 
-## Building and Running
+## Generating SDK artefacts (local)
 
-### Build and Run Android Application
+Android artefacts:
+./gradlew clean --no-configuration-cache
+./gradlew :shared:publishToMavenLocal --no-configuration-cache
+./gradlew :cardkit-android:publishToMavenLocal --no-configuration-cache
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
+The artefact is named: cardkit-android version 1.0.1 as of writing of this file.
+In the Showcase Android SDK it's used as a dependency in this approach:
+implementation("com.example.esimsdkkmp:cardkit-android:1.0.1")
 
-- On macOS/Linux:
+iOS XCFramework:
 
-  ```shell
-  ./gradlew :composeApp:assembleDebug
+./gradlew :shared:assembleXCFramework --no-configuration-cache
+
+The generated ios framework currently must be manually located and added in the Showcase iOS app as a dependency.
+
+Later on both SDK's will be delivered to the 'customers' now 'showcase' apps either locally (android) or manually (ios).
+This will not be the final approach when we go to Production.
